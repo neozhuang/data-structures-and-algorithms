@@ -58,7 +58,7 @@ void test_utf8()
 
     // std::string source = "喜欢你";
     // std::string target = "欢喜你";
-   
+
     int dist = minEditDistanceUtf8(source, target);
     std::cout << "The minimum distance between \"" << source << "\" and \""
         << target << "\" is: " << dist << "." << std::endl;
@@ -77,27 +77,21 @@ int minEditDistance(const std::string& s, const std::string& t)
     const std::size_t m = s.size();
     const std::size_t n = t.size();
 
-    // Set the weighted factors for different operations.
-    int del_cost = 1;
-    int ins_cost = 1;
-    int sub_cost;
-
     std::vector<std::vector<int>> D(m + 1, std::vector<int>(n + 1));
 
     // Initialize the boundries.
-    for (std::size_t i = 1; i <= m; i++) {
-        D[i][0] = static_cast<int>(i);
-    }
-    for (std::size_t j = 1; j <= n; j++) {
-        D[0][j] = static_cast<int>(j);
-    }
+    for (std::size_t i = 1; i <= m; i++)  D[i][0] = static_cast<int>(i);
+    for (std::size_t j = 1; j <= n; j++)  D[0][j] = static_cast<int>(j);
 
     // Dynamic programming.
     for (std::size_t i = 1; i <= m; i++) {
         for (std::size_t j = 1; j <= n; j++) {
-            sub_cost = s[i - 1] == t[j - 1] ? 0 : 2;
-            D[i][j] = std::min({D[i - 1][j] + del_cost, D[i][j - 1] + ins_cost,
-                          D[i - 1][j - 1] + sub_cost});
+            const int substitution_cost = s[i - 1] == t[j - 1] ? 0 : 2;
+            D[i][j] = std::min({
+                D[i - 1][j] + 1, 
+                D[i][j - 1] + 1,
+                D[i - 1][j - 1] + substitution_cost
+            });
         }
     }
 
@@ -108,11 +102,6 @@ int minEditDistanceUtf8(const std::string& s, const std::string& t)
 {
     const std::size_t m = length(s);
     const std::size_t n = length(t);
-
-    // Set the weighted factors for different operations.
-    int del_cost = 1;
-    int ins_cost = 1;
-    int sub_cost;
 
     std::vector<std::vector<int>> D(m + 1, std::vector<int>(n + 1));
 
@@ -136,9 +125,12 @@ int minEditDistanceUtf8(const std::string& s, const std::string& t)
             substring_t = t.substr(t_idx, nBytes);
             t_idx += nBytes;
 
-            sub_cost = (substring_s == substring_t) ? 0 : 2;
-            D[i][j] = std::min({D[i - 1][j] + del_cost, D[i][j - 1] + ins_cost,
-                          D[i - 1][j - 1] + sub_cost});
+            const int substitution_cost = (substring_s == substring_t) ? 0 : 2;
+            D[i][j] = std::min({
+                D[i - 1][j] + 1,
+                D[i][j - 1] + 1,
+                D[i - 1][j - 1] + substitution_cost
+            });
         }
     }
 
